@@ -41,9 +41,9 @@ func main() {
 	endingSpace := []int{9, 9} //9,9
 	fmt.Println(endingSpace)
 	spacesVisited := [][]int{}
+	BadSpaces := [][]int{}
 	var spaceToBeAdded = []int{currentSpace[0], currentSpace[1]}
-	spacesVisited = append(spacesVisited, spaceToBeAdded)
-	fmt.Println(spacesVisited)
+	//spacesVisited = append(spacesVisited, spaceToBeAdded)
 
 	//fmt.Println(spaceHasBeenVisited(spacesVisited, currentSpace))
 	//moveRight(boardGrid[currentSpace[0]][currentSpace[1]], currentSpace)
@@ -54,33 +54,64 @@ func main() {
 	//moveDown(boardGrid[currentSpace[0]][currentSpace[1]], currentSpace)
 	//moveUp(boardGrid[currentSpace[0]][currentSpace[1]], currentSpace)
 	//fmt.Println(currentSpace, boardGrid[currentSpace[0]][currentSpace[1]])
-	//for !(currentSpace[0] == endingSpace[0] && currentSpace[1] == endingSpace[1]) {
+	//
 
-	for i := 0; i < 4; i++ {
+	for !(currentSpace[0] == endingSpace[0] && currentSpace[1] == endingSpace[1]) {
+		//for i := 0; i < 30; i++ {
 
-		if currentSpace[1]+boardGrid[currentSpace[0]][currentSpace[1]] < 10 {
+		var movementOptionForRightMovement = []int{currentSpace[0], currentSpace[1] + boardGrid[currentSpace[0]][currentSpace[1]]}
+		var movementOptionForLeftMovement = []int{currentSpace[0], currentSpace[1] - boardGrid[currentSpace[0]][currentSpace[1]]}
+		var movementOptionForDownMovement = []int{currentSpace[0] + boardGrid[currentSpace[0]][currentSpace[1]], currentSpace[1]}
+		var movementOptionForUpMovement = []int{currentSpace[0] - boardGrid[currentSpace[0]][currentSpace[1]], currentSpace[1]}
+
+		/* 	fmt.Println("mikä olet left", movementOptionForLeftMovement)
+		fmt.Println("mikä olet raitti", movementOptionForRightMovement)
+		fmt.Println("mikä olet down", movementOptionForDownMovement)
+		fmt.Println("mikä olet uppi", movementOptionForUpMovement)
+		*/
+		var rightOption = spaceHasBeenVisited(spacesVisited, movementOptionForRightMovement)
+		var leftOption = spaceHasBeenVisited(spacesVisited, movementOptionForLeftMovement)
+		var downOption = spaceHasBeenVisited(spacesVisited, movementOptionForDownMovement)
+		var upOption = spaceHasBeenVisited(spacesVisited, movementOptionForUpMovement)
+		var badRightOption = isBadSpace(BadSpaces, movementOptionForRightMovement)
+		var badLeftOption = isBadSpace(BadSpaces, movementOptionForLeftMovement)
+		var badDownOption = isBadSpace(BadSpaces, movementOptionForDownMovement)
+		var badUpOption = isBadSpace(BadSpaces, movementOptionForUpMovement)
+
+		if currentSpace[1]+boardGrid[currentSpace[0]][currentSpace[1]] < 10 && !badRightOption && !rightOption {
 			moveRight(boardGrid[currentSpace[0]][currentSpace[1]], currentSpace, spacesVisited)
 			spaceToBeAdded = []int{currentSpace[0], currentSpace[1]}
 			spacesVisited = append(spacesVisited, spaceToBeAdded)
-		} else if currentSpace[0]+boardGrid[currentSpace[0]][currentSpace[1]] < 10 {
+		} else if currentSpace[0]+boardGrid[currentSpace[0]][currentSpace[1]] < 10 && !badDownOption && !downOption {
 			moveDown(boardGrid[currentSpace[0]][currentSpace[1]], currentSpace, spacesVisited)
 			spaceToBeAdded = []int{currentSpace[0], currentSpace[1]}
 			spacesVisited = append(spacesVisited, spaceToBeAdded)
-		} else if currentSpace[1]-boardGrid[currentSpace[0]][currentSpace[1]] > -1 {
-			moveLeft(boardGrid[currentSpace[0]][currentSpace[1]], currentSpace, spacesVisited)
-			spaceToBeAdded = []int{currentSpace[0], currentSpace[1]}
-			spacesVisited = append(spacesVisited, spaceToBeAdded)
-		} else if currentSpace[0]-boardGrid[currentSpace[0]][currentSpace[1]] > -1 {
+		} else if currentSpace[0]-boardGrid[currentSpace[0]][currentSpace[1]] > -1 && !badUpOption && !upOption {
 			moveUp(boardGrid[currentSpace[0]][currentSpace[1]], currentSpace, spacesVisited)
 			spaceToBeAdded = []int{currentSpace[0], currentSpace[1]}
 			spacesVisited = append(spacesVisited, spaceToBeAdded)
+		} else if currentSpace[1]-boardGrid[currentSpace[0]][currentSpace[1]] > -1 && !badLeftOption && !leftOption {
+			moveLeft(boardGrid[currentSpace[0]][currentSpace[1]], currentSpace, spacesVisited)
+			spaceToBeAdded = []int{currentSpace[0], currentSpace[1]}
+			spacesVisited = append(spacesVisited, spaceToBeAdded)
 		} else {
-			fmt.Println("test")
+
+			//fmt.Println("tescccct")
+			//fmt.Println(currentSpace)
+			var temp = currentSpace
+			BadSpaces = append(BadSpaces, temp)
+			//BadSpaces = append(BadSpaces, temp)
+			spacesVisited = nil
+			var newSpace = []int{0, 0}
+			currentSpace = newSpace
+			//	fmt.Println(currentSpace)
 		}
-		fmt.Println(boardGrid[currentSpace[0]][currentSpace[1]])
 	}
+
 	fmt.Println(currentSpace)
+	fmt.Println("route to exit")
 	fmt.Println(spacesVisited)
+
 }
 
 func moveRight(stepsToMove int, currentSpace []int, spacesVisited [][]int) ([]int, [][]int) {
@@ -129,11 +160,21 @@ func moveUp(stepsToMove int, currentSpace []int, spacesVisited [][]int) ([]int, 
 
 // Contains tells whether a contains x.
 func spaceHasBeenVisited(spacesVisited [][]int, currentSpace []int) bool {
-	for i := range spacesVisited { //assign
-		if currentSpace[0] == i && currentSpace[1] == i {
+	for _, r := range spacesVisited { //assign
+
+		if currentSpace[0] == r[0] && currentSpace[1] == r[1] {
 			return true
 		}
 	}
+	return false
+}
 
+// Contains tells whether a contains x.
+func isBadSpace(badSpaces [][]int, currentSpace []int) bool {
+	for _, r := range badSpaces { //assign
+		if currentSpace[0] == r[0] && currentSpace[1] == r[1] {
+			return true
+		}
+	}
 	return false
 }
