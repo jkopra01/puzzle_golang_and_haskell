@@ -8,10 +8,14 @@ import (
 	"strings"
 )
 
-//var currentSpace []int
-var boardGrid [][]int
-
 func main() {
+	var boardGrid [][]int
+	boardGrid = createBoard()
+	printBoard(boardGrid)
+	solve(boardGrid)
+}
+
+func createBoard() [][]int {
 	textFileLocation := "./puzzleBoard.txt"
 	board, errorGiven := ioutil.ReadFile(textFileLocation)
 	if errorGiven != nil {
@@ -35,40 +39,26 @@ func main() {
 			boardGrid[i][j] = number
 		}
 	}
-	fmt.Println(boardGrid)
+	return boardGrid
+}
+
+func printBoard(boardGrid [][]int) {
+	fmt.Println("Board:")
+	for _, r := range boardGrid {
+		fmt.Println(r)
+	}
+}
+func solve(boardGrid [][]int) [][]int {
 	var currentSpace = []int{0, 0}
-	fmt.Println(currentSpace)
-	endingSpace := []int{9, 9} //9,9
-	fmt.Println(endingSpace)
+	endingSpace := []int{9, 9}
 	spacesVisited := [][]int{}
 	BadSpaces := [][]int{}
 	var spaceToBeAdded = []int{currentSpace[0], currentSpace[1]}
-	//spacesVisited = append(spacesVisited, spaceToBeAdded)
-
-	//fmt.Println(spaceHasBeenVisited(spacesVisited, currentSpace))
-	//moveRight(boardGrid[currentSpace[0]][currentSpace[1]], currentSpace)
-
-	//fmt.Println(spaceHasBeenVisited(spacesVisited, currentSpace))
-	//moveLeft(boardGrid[currentSpace[0]][currentSpace[1]], currentSpace, spacesVisited)
-
-	//moveDown(boardGrid[currentSpace[0]][currentSpace[1]], currentSpace)
-	//moveUp(boardGrid[currentSpace[0]][currentSpace[1]], currentSpace)
-	//fmt.Println(currentSpace, boardGrid[currentSpace[0]][currentSpace[1]])
-	//
-
 	for !(currentSpace[0] == endingSpace[0] && currentSpace[1] == endingSpace[1]) {
-		//for i := 0; i < 30; i++ {
-
 		var movementOptionForRightMovement = []int{currentSpace[0], currentSpace[1] + boardGrid[currentSpace[0]][currentSpace[1]]}
 		var movementOptionForLeftMovement = []int{currentSpace[0], currentSpace[1] - boardGrid[currentSpace[0]][currentSpace[1]]}
 		var movementOptionForDownMovement = []int{currentSpace[0] + boardGrid[currentSpace[0]][currentSpace[1]], currentSpace[1]}
 		var movementOptionForUpMovement = []int{currentSpace[0] - boardGrid[currentSpace[0]][currentSpace[1]], currentSpace[1]}
-
-		/* 	fmt.Println("mikä olet left", movementOptionForLeftMovement)
-		fmt.Println("mikä olet raitti", movementOptionForRightMovement)
-		fmt.Println("mikä olet down", movementOptionForDownMovement)
-		fmt.Println("mikä olet uppi", movementOptionForUpMovement)
-		*/
 		var rightOption = spaceHasBeenVisited(spacesVisited, movementOptionForRightMovement)
 		var leftOption = spaceHasBeenVisited(spacesVisited, movementOptionForLeftMovement)
 		var downOption = spaceHasBeenVisited(spacesVisited, movementOptionForDownMovement)
@@ -78,6 +68,7 @@ func main() {
 		var badDownOption = isBadSpace(BadSpaces, movementOptionForDownMovement)
 		var badUpOption = isBadSpace(BadSpaces, movementOptionForUpMovement)
 
+		//check if movement stays in the board, has not been marked as a bad space and if it has been visited this "run"
 		if currentSpace[1]+boardGrid[currentSpace[0]][currentSpace[1]] < 10 && !badRightOption && !rightOption {
 			moveRight(boardGrid[currentSpace[0]][currentSpace[1]], currentSpace, spacesVisited)
 			spaceToBeAdded = []int{currentSpace[0], currentSpace[1]}
@@ -95,73 +86,46 @@ func main() {
 			spaceToBeAdded = []int{currentSpace[0], currentSpace[1]}
 			spacesVisited = append(spacesVisited, spaceToBeAdded)
 		} else {
-
-			//fmt.Println("tescccct")
-			//fmt.Println(currentSpace)
-			var temp = currentSpace
-			BadSpaces = append(BadSpaces, temp)
-			//BadSpaces = append(BadSpaces, temp)
+			//no good spaces to move to, mark current space as a bad space, empty visited spaces and go back to the starting space.
+			BadSpaces = append(BadSpaces, currentSpace)
 			spacesVisited = nil
-			var newSpace = []int{0, 0}
-			currentSpace = newSpace
-			//	fmt.Println(currentSpace)
+			currentSpace = []int{0, 0}
 		}
 	}
-
-	fmt.Println(currentSpace)
-	fmt.Println("route to exit")
-	fmt.Println(spacesVisited)
-
+	fmt.Println("Route to the exit was:\n", spacesVisited)
+	return spacesVisited
 }
 
 func moveRight(stepsToMove int, currentSpace []int, spacesVisited [][]int) ([]int, [][]int) {
-	if currentSpace[1]+stepsToMove < 10 {
-		currentSpace[1] = currentSpace[1] + stepsToMove
-		fmt.Println("Moved right. Current space is ", currentSpace)
-		return currentSpace, spacesVisited
-	}
-	fmt.Println("Cant go there, move would take you outside the board")
+	currentSpace[1] = currentSpace[1] + stepsToMove
+	fmt.Println("Moved right. Current space is ", currentSpace)
+	spacesVisited = append(spacesVisited, currentSpace)
 	return currentSpace, spacesVisited
 }
 
 func moveLeft(stepsToMove int, currentSpace []int, spacesVisited [][]int) ([]int, [][]int) {
-	if currentSpace[1]-stepsToMove > -1 {
-		currentSpace[1] = currentSpace[1] - stepsToMove
-		fmt.Println("Moved left. Current space is ", currentSpace)
-		var spaceToBeAdded = []int{currentSpace[0], currentSpace[1]}
-		spacesVisited = append(spacesVisited, spaceToBeAdded)
-		return currentSpace, spacesVisited
-	}
-	fmt.Println("Cant go there, move would take you outside the board")
+	currentSpace[1] = currentSpace[1] - stepsToMove
+	fmt.Println("Moved left. Current space is ", currentSpace)
+	spacesVisited = append(spacesVisited, currentSpace)
 	return currentSpace, spacesVisited
 }
 
 func moveDown(stepsToMove int, currentSpace []int, spacesVisited [][]int) ([]int, [][]int) {
-	if currentSpace[0]+stepsToMove < 10 {
-		currentSpace[0] = currentSpace[0] + stepsToMove
-		fmt.Println("Moved down. Current space is ", currentSpace)
-		spacesVisited = append(spacesVisited, currentSpace)
-		return currentSpace, spacesVisited
-	}
-	fmt.Println("Cant go there, move would take you outside the board")
+	currentSpace[0] = currentSpace[0] + stepsToMove
+	fmt.Println("Moved down. Current space is ", currentSpace)
+	spacesVisited = append(spacesVisited, currentSpace)
 	return currentSpace, spacesVisited
 }
 
 func moveUp(stepsToMove int, currentSpace []int, spacesVisited [][]int) ([]int, [][]int) {
-	if currentSpace[0]-stepsToMove > -1 {
-		currentSpace[0] = currentSpace[0] - stepsToMove
-		fmt.Println("Moved up. Current space is ", currentSpace)
-		spacesVisited = append(spacesVisited, currentSpace)
-		return currentSpace, spacesVisited
-	}
-	fmt.Println("Cant go there, move would take you outside the board")
+	currentSpace[0] = currentSpace[0] - stepsToMove
+	fmt.Println("Moved up. Current space is ", currentSpace)
+	spacesVisited = append(spacesVisited, currentSpace)
 	return currentSpace, spacesVisited
 }
 
-// Contains tells whether a contains x.
 func spaceHasBeenVisited(spacesVisited [][]int, currentSpace []int) bool {
-	for _, r := range spacesVisited { //assign
-
+	for _, r := range spacesVisited {
 		if currentSpace[0] == r[0] && currentSpace[1] == r[1] {
 			return true
 		}
@@ -169,9 +133,8 @@ func spaceHasBeenVisited(spacesVisited [][]int, currentSpace []int) bool {
 	return false
 }
 
-// Contains tells whether a contains x.
 func isBadSpace(badSpaces [][]int, currentSpace []int) bool {
-	for _, r := range badSpaces { //assign
+	for _, r := range badSpaces {
 		if currentSpace[0] == r[0] && currentSpace[1] == r[1] {
 			return true
 		}
