@@ -1,7 +1,6 @@
 module Main where
-
-
 import Data.Char
+import HUnit
 
 readLines :: FilePath -> IO [String]
 readLines = fmap lines . readFile
@@ -37,23 +36,23 @@ toIntArray = map (toInts . head)
 toInts :: Char -> Int
 toInts = digitToInt
 
+--to avoid the error given by the negative index
 getOptionToAvoidNegIndU :: [Int] -> Int -> [Int]
-getOptionToAvoidNegIndU x y = do
-  if head x - y > 0
+getOptionToAvoidNegIndU x y = 
+  if head x - y > -1
     then [head x - y, last x]
-    else [0,0]
+    else [400,400]
 
 getOptionToAvoidNegIndL :: [Int] -> Int -> [Int]
-getOptionToAvoidNegIndL x y = do
-  if last x - y > 0
+getOptionToAvoidNegIndL x y =
+  if last x - y > -1
     then [head x, last x - y]
-    else [0,0]
+    else [400,400]
 
 
 
-solve :: [[Int]] -> [Int] -> [[Int]] -> [[Int]] -> IO ()
+solve :: [[Int]] -> [Int] -> [[Int]] -> [[Int]] -> [[Int]]
 solve board current visited bad = do
-  print current
   let correctRow = getRow board current
   let numberOnSpace = getNumberOnSpace2 correctRow current
   let finalSpace = [9,9]
@@ -64,30 +63,30 @@ solve board current visited bad = do
   let upOption =  getOptionToAvoidNegIndU current numberOnSpace
 
   if current == finalSpace
-    then print "ff"
+    then visited
 
-  else if numberOnSpace+last current <= 9 && notElem rightOption bad && notElem rightOption visited 
+  else if numberOnSpace+last current < 10  && notElem rightOption bad && notElem rightOption visited 
                       then do 
-                        let temp = visited ++ [rightOption]
-                        solve board rightOption temp bad
-  else if numberOnSpace+head current <= 9 && notElem downOption bad && notElem downOption visited 
+                        let tempVisited = visited ++ [rightOption]
+                        solve board rightOption tempVisited bad
+  else if numberOnSpace+head current < 10 && notElem downOption bad && notElem downOption visited 
                       then do 
-                        let temp = visited ++ [downOption]
-                        solve board downOption temp bad
-  else if numberOnSpace-head current > 0 && notElem upOption bad && notElem upOption visited
+                        let tempVisited = visited ++ [downOption]
+                        solve board downOption tempVisited bad
+  else if head current - numberOnSpace > -1 && notElem upOption bad && notElem upOption visited && head upOption < 11
                       then do 
-                        let temp = visited ++ [upOption]
-                        solve board upOption temp bad
-  else if numberOnSpace-last current > 0 && notElem leftOption bad && notElem leftOption visited
+                        let tempVisited = visited ++ [upOption]
+                        solve board upOption tempVisited bad
+  else if last current - numberOnSpace > -1 && notElem leftOption bad && notElem leftOption visited && head leftOption < 11
                       then do 
-                        let temp = visited ++ [leftOption]
-                        solve board leftOption temp bad
-  else do
-    let bad = bad ++ [current]
-    let visited = [[]]
-    let current = [0,0]
-    print bad
-    solve board current visited bad
+                        let tempVisited = visited ++ [leftOption]
+                        solve board leftOption tempVisited bad
+  else 
+                      do
+                        let tempBad = bad ++ [current]
+                        let visited = [[]]
+                        let current = [0,0]
+                        solve board current visited tempBad
 
 getRow :: [[Int]] -> [Int] -> [Int]
 getRow b c = b !! head c
@@ -95,17 +94,13 @@ getRow b c = b !! head c
 getNumberOnSpace2 :: [Int] ->  [Int] -> Int
 getNumberOnSpace2 b c = b !! last c
 
-
 main = do
   content <- readLines "PuzzleBoard.txt"
   let boardRows = splitRows 1 content
   let boardString = createCorrectList boardRows
   let board = toIntList boardString
   let currentSpace = [0,0]
- -- let endSpace = [9,9]
   let spacesVisited = [[]]
   let badSpaces = [[]]
- -- let correctSequence = solve board currentSpace spacesVisited badSpaces
- -- let correctSequence = getRow board currentSpace
- -- let correctSequence2 = getNumberOnSpace2 correctSequence currentSpace
-  solve board currentSpace spacesVisited badSpaces
+  let correctSequence = solve board currentSpace spacesVisited badSpaces
+  print correctSequence
