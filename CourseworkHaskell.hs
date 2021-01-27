@@ -1,6 +1,5 @@
-module Main where
+module CourseworkHaskell where
 import Data.Char
-import HUnit
 
 readLines :: FilePath -> IO [String]
 readLines = fmap lines . readFile
@@ -8,9 +7,6 @@ readLines = fmap lines . readFile
 splitRows :: Int -> [a] -> [[a]]
 splitRows n [] = []
 splitRows n xs = take n xs:splitRows n (drop n xs)
-
-getNumberOnSpace :: [[a]] -> Int -> [a]
-getNumberOnSpace m k = map (!! k) m
 
 splitBy :: Char -> String -> [String]
 splitBy _ [] = []
@@ -41,20 +37,27 @@ getOptionToAvoidNegIndU :: [Int] -> Int -> [Int]
 getOptionToAvoidNegIndU x y = 
   if head x - y > -1
     then [head x - y, last x]
-    else [400,400]
+    else [11,11]
 
 getOptionToAvoidNegIndL :: [Int] -> Int -> [Int]
 getOptionToAvoidNegIndL x y =
   if last x - y > -1
     then [head x, last x - y]
-    else [400,400]
+    else [11,11]
+
+
+getRow :: [[Int]] -> [Int] -> [Int]
+getRow b c = b !! head c
+
+getNumberOnSpace :: [Int] ->  [Int] -> Int
+getNumberOnSpace b c = b !! last c
 
 
 
 solve :: [[Int]] -> [Int] -> [[Int]] -> [[Int]] -> [[Int]]
 solve board current visited bad = do
   let correctRow = getRow board current
-  let numberOnSpace = getNumberOnSpace2 correctRow current
+  let numberOnSpace = getNumberOnSpace correctRow current
   let finalSpace = [9,9]
   let rightOption = [head current,last current + numberOnSpace]
   let downOption = [head current + numberOnSpace,last current]
@@ -88,11 +91,6 @@ solve board current visited bad = do
                         let current = [0,0]
                         solve board current visited tempBad
 
-getRow :: [[Int]] -> [Int] -> [Int]
-getRow b c = b !! head c
-
-getNumberOnSpace2 :: [Int] ->  [Int] -> Int
-getNumberOnSpace2 b c = b !! last c
 
 main = do
   content <- readLines "PuzzleBoard.txt"
